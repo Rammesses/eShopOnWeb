@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.eShopWeb.ApplicationCore;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Services;
+using Microsoft.eShopWeb.Infrastructure;
 using Microsoft.eShopWeb.Infrastructure.Data;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.eShopWeb.Infrastructure.Logging;
@@ -85,20 +87,10 @@ namespace Microsoft.eShopWeb.Web
             ConfigureCookieSettings(services);
 
             CreateIdentityIfNotCreated(services);
-            
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 
-            services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
-            services.AddScoped<IBasketService, BasketService>();
-            services.AddScoped<IBasketViewModelService, BasketViewModelService>();
-            services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<CatalogViewModelService>();
-            services.Configure<CatalogSettings>(Configuration);
-            services.AddSingleton<IUriComposer>(new UriComposer(Configuration.Get<CatalogSettings>()));
-
-            services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddInfrastructureServices();
+            services.AddApplicationCoreServices(Configuration);
+            services.AddWebViewModelServices();
 
             // Add memory cache services
             services.AddMemoryCache();
@@ -111,17 +103,16 @@ namespace Microsoft.eShopWeb.Web
             });
 
             services.AddMvc(options =>
-            {
-                options.Conventions.Add(new RouteTokenTransformerConvention(
-                         new SlugifyParameterTransformer()));
-                
-            }
-            )
+                    {
+                        options.Conventions.Add(new RouteTokenTransformerConvention(
+                                 new SlugifyParameterTransformer()));
+                        
+                    })
                 .AddRazorPagesOptions(options =>
-                {
-                    options.Conventions.AuthorizePage("/Basket/Checkout");
-                    options.AllowAreas = true;
-                })
+                    {
+                        options.Conventions.AuthorizePage("/Basket/Checkout");
+                        options.AllowAreas = true;
+                    })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddHttpContextAccessor();
