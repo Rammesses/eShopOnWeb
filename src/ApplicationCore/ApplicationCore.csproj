@@ -11,6 +11,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
+		<PackageReference Include="CheviotConsulting.DependencyInjection.Discovery" Version="0.5.0" />
 	</ItemGroup>
 
 </Project>

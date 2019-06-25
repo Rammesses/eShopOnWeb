@@ -9,19 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.eShopWeb.ApplicationCore;
-using Microsoft.eShopWeb.ApplicationCore.Interfaces;
-using Microsoft.eShopWeb.ApplicationCore.Services;
-using Microsoft.eShopWeb.Infrastructure;
 using Microsoft.eShopWeb.Infrastructure.Data;
 using Microsoft.eShopWeb.Infrastructure.Identity;
-using Microsoft.eShopWeb.Infrastructure.Logging;
-using Microsoft.eShopWeb.Infrastructure.Services;
 using Microsoft.eShopWeb.Web.HealthChecks;
-using Microsoft.eShopWeb.Web.Interfaces;
-using Microsoft.eShopWeb.Web.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Discovery;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
@@ -88,49 +81,7 @@ namespace Microsoft.eShopWeb.Web
 
             CreateIdentityIfNotCreated(services);
 
-            services.AddInfrastructureServices();
-            services.AddApplicationCoreServices(Configuration);
-            services.AddWebViewModelServices();
-
-            // Add memory cache services
-            services.AddMemoryCache();
-
-            services.AddRouting(options =>
-            {
-                // Replace the type and the name used to refer to it with your own
-                // IOutboundParameterTransformer implementation
-                options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
-            });
-
-            services.AddMvc(options =>
-                    {
-                        options.Conventions.Add(new RouteTokenTransformerConvention(
-                                 new SlugifyParameterTransformer()));
-                        
-                    })
-                .AddRazorPagesOptions(options =>
-                    {
-                        options.Conventions.AuthorizePage("/Basket/Checkout");
-                        options.AllowAreas = true;
-                    })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddHttpContextAccessor();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-            });
-
-            services.AddHealthChecks()
-                .AddCheck<HomePageHealthCheck>("home_page_health_check")
-                .AddCheck<ApiHealthCheck>("api_health_check");
-
-            services.Configure<ServiceConfig>(config =>
-            {
-                config.Services = new List<ServiceDescriptor>(services);
-
-                config.Path = "/allservices";
-            });
+            services.BootstrapByDiscovery();
 
             _services = services; // used to debug registered services
         }
