@@ -13,7 +13,7 @@ namespace Microsoft.eShopWeb.ApplicationCore
 
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IOrderService, OrderService>();
-            services.AddSingleton<IUriComposer>(provider => new UriComposer(provider.GetRequiredService<CatalogSettings>()));
+            services.AddSingleton<IUriComposer>(provider => new UriComposer(provider.GetRequiredService<IConfiguration>().Get<CatalogSettings>()));
 
             return services;
         }
