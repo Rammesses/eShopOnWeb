@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.eShopWeb.ApplicationCore;
+using Microsoft.eShopWeb.Infrastructure;
 using Microsoft.eShopWeb.Infrastructure.Data;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.eShopWeb.Web.HealthChecks;
@@ -81,7 +83,13 @@ namespace Microsoft.eShopWeb.Web
 
             CreateIdentityIfNotCreated(services);
 
+            // "Magic" bootstrapper discovery
             services.BootstrapByDiscovery();
+
+            // Manual bootstrapping
+            // services.BootstrapFrom<InfrastructureBootstrapper>();
+            // services.BootstrapFrom<ApplicationCoreBootstrapper>();
+            // services.BootstrapFrom<WebBootstrapper>();
 
             _services = services; // used to debug registered services
         }
