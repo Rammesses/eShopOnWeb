@@ -77,28 +77,28 @@ namespace Microsoft.eShopWeb.Web
             ConfigureServices(services);
         }
 
-
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureInfrastructureServices(IServiceCollection services)
         {
-            ConfigureCookieSettings(services);
-
-            CreateIdentityIfNotCreated(services);
-            
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
-
-            services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
-            services.AddScoped<IBasketService, BasketService>();
-            services.AddScoped<IBasketViewModelService, BasketViewModelService>();
-            services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<CatalogViewModelService>();
-            services.Configure<CatalogSettings>(Configuration);
-            services.AddSingleton<IUriComposer>(new UriComposer(Configuration.Get<CatalogSettings>()));
-
             services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
             services.AddTransient<IEmailSender, EmailSender>();
+        }
+
+        public void ConfigureApplicationCore(IServiceCollection services)
+        {
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped<IBasketService, BasketService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.Configure<CatalogSettings>(Configuration);
+        }
+
+        public void ConfigureWebServices(IServiceCollection services)
+        {
+            services.AddScoped<IBasketViewModelService, BasketViewModelService>();
+            services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
+            services.AddScoped<CatalogViewModelService>();
+
+                        services.AddSingleton<IUriComposer>(new UriComposer(Configuration.Get<CatalogSettings>()));
 
             // Add memory cache services
             services.AddMemoryCache();
@@ -140,6 +140,19 @@ namespace Microsoft.eShopWeb.Web
 
                 config.Path = "/allservices";
             });
+        }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ConfigureCookieSettings(services);
+
+            CreateIdentityIfNotCreated(services);
+            
+            // refactored into helper methods
+            ConfigureInfrastructureServices(services);
+            ConfigureApplicationCore(services);
+            ConfigureWebServices(services);
 
             _services = services; // used to debug registered services
         }
