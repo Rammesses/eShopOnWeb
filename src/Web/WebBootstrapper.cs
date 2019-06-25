@@ -3,6 +3,7 @@ using Ardalis.ListStartupServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.eShopWeb.Web.HealthChecks;
+using Microsoft.eShopWeb.Web.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Discovery;
@@ -14,6 +15,8 @@ namespace Microsoft.eShopWeb.Web
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddWebViewModelServices();
+            
             // Add memory cache services
             services.AddMemoryCache();
 
